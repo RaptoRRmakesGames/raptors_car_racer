@@ -14,7 +14,7 @@ class Save_Manager:
                 print("folder already created")
             try:
                 with open(self.path + self.fn + ".json", "r") as file:
-                    self.saved = json.load(file)#file.write("{}")
+                    self.saved = json.load(file)
             except:   
                 self.saved = {}
             print("created file")
@@ -32,8 +32,7 @@ class Save_Manager:
             try:
                 return temp_dict[varname]
             except KeyError:
-                print(f"Invalid Variable Name : {varname} or var was never saved")
-                return 100
+                return Exception(f"Invalid Variable Name : {varname} or var was never saved")
 
     def apply(self):
         with open(self.path + self.fn + ".json", "w") as file:

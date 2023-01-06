@@ -1,0 +1,28 @@
+Prototype v1.0 
+
+features inside 
+
+-Complete car physics
+-lap counting
+-lap saving
+-level switching
+-shitty but working ui
+-mask collisions for ground and car
+-car slower when not on road
+-kinda balanced values (speed, friction etc)
+-4 levels
+
+features to be completed
+
+-better ui
+-heavy optimization
+-settings.json
+-audio
+-more cars
+-particles
+-9 maps with more creative names
+
+Misc/secondary additions (not 100% sure they will be included
+
+-game icon
+-animations (might not need if particles dont suck)

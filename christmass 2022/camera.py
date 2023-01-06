@@ -24,11 +24,17 @@ class Camera:
 
         #self.scroll[0], self.scroll[1] = obj.rect.x, obj.rect.y
 
-        if (obj.rect.x  - self.scroll[0]) != self.screen.get_width()/2:
-            self.scroll[0] += ((obj.rect.x - (self.scroll[0] + self.screen.get_width()/2)))
-        if obj.rect.y   - self.scroll[1] != self.screen.get_height()/2:
-            self.scroll[1] += ((obj.rect.y - (self.scroll[1] + self.screen.get_height()/2)))
+        # if (obj.rect.x  - self.scroll[0]) != self.screen.get_width()/2:
+        #     self.scroll[0] += ((obj.rect.x - (self.scroll[0] + self.screen.get_width()/2)))
+        # if obj.rect.y   - self.scroll[1] != self.screen.get_height()/2:
+        #     self.scroll[1] += ((obj.rect.y - (self.scroll[1] + self.screen.get_height()/2)))
+
+        # if pygame.key.get_pressed()[K_b]:
+        self.center_obj(obj)
 
     def zoom_game(self, zoom):
         self.zoom = zoom
+
+    def center_obj(self, obj):
+        self.scroll = [obj.rect.x,obj.rect.y]
 

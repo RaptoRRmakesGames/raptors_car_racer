@@ -15,7 +15,7 @@ class CarSprite( pygame.sprite.Sprite ):
         self.rotated_images = {}
         self.min_angle = ( 360 / rotations ) 
         for i in range( rotations ):
-            rotated_image = pygame.transform.rotozoom( car_image, 360-90-( i*self.min_angle ), 1 )
+            rotated_image = pygame.transform.rotozoom( car_image, 360-90-( i*self.min_angle ), 12)
             self.rotated_images[i*self.min_angle] = rotated_image
             
         self.min_angle = math.radians( self.min_angle )
