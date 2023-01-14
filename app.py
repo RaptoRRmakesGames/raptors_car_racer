@@ -84,9 +84,12 @@ class LevelManager:
         # You can use a list comprehension to create the button_cords and button_args lists.
         self.button_cords = [(x, y) for x in range(400, 601, 100) for y in range(300, 501, 100)]
         self.button_args = list(range(len(self.button_cords)))
-
+        timer = 0
         self.button_list = []
         for cord, arg in zip(self.button_cords, self.button_args):
+            timer += 1
+            if timer > 4:
+                continue
             self.button_list.append(ui.ButtonWithArg(cord, images["start2"], set_level,click_times=1000000000000, arg=arg, text="selectlvl"))
 
     def set_level(self, lvl):
@@ -101,14 +104,21 @@ class LevelManager:
             button.update(int(button.arg), var=str(button.arg))
             button.draw(screen)
 
+    def reset_lvls(self):
+        for level in self.levels:
+            self.levels[level].reset()
+
 def play_game():
     global stage,fps
     player_car.reset()
+    level_m.reset_lvls()
     stage = "game"
     #fps=80
 
 def level_select():
     global stage,fps
+    player_car.reset()
+    level_m.reset_lvls()
     stage = "level"
     #fps=15
 
@@ -170,11 +180,11 @@ def write_result_string(level_name):
     # f"Money Made - {round(((float(max(player_car.performances[level_name].values( ))) / float(min(player_car.performances[level_name].)))  * laps) * 1000)}$",(300,600),
     f"Money Made - {round(money_made)}$",(300,600), color=(0,223,0) , font = big)
 
-
 def go_home():
     global stage
     stage = "home"
-    player_car.laps = 0 
+    player_car.reset()
+    level_m.reset_lvls()
 
 def buy_car(car):
     global money
@@ -214,6 +224,9 @@ car_to_buy = "dodge hellcat"
 
 start_button = ui.Button((500,500), images["start"], play_game,click_times=1000000000000, text="startgame")
 select_button = ui.Button((500,600), images["start"], level_select,click_times=1000000000000, text="selectlvl")
+
+best_round= ui.TextWithBackground((150,225), (80,200),  pygame.transform.scale(pygame.image.load("images/best_run.png"), (500, 800)).convert(),extra_x=15,extra_y=140,fontsize=60, font="JdLcdRoundedRegular-vXwE.ttf", colour=(255,145,0))
+
 
 quit_result = ui.Button((500,800), images["start"], go_home,click_times=1000000000000 ,text="startgame")
 
@@ -303,7 +316,7 @@ def render():
         ui.write(screen, f"{GAME_NAME.upper()}", (screen_width //2 - 210,100),font=bigger)
 
         if cars["dodge hellcat"].bought:
-            start_button.update("Quick Play")
+            start_button.update("Replay level")
             start_button.draw(screen)
 
         select_button.update("Select Level")
@@ -317,25 +330,38 @@ def render():
 
         # particles for drifting without boost
         if pygame.key.get_pressed()[K_SPACE] and not player_car.blue_fire:
-            pm.create_particle(
-                
-                (player_car.rect.center),
-                (0,0),
-                8 * cam.zoom,
-                0.2,
-                (255,255,255),
-                custom_death_meter=4)
+            if randint(1,3) == 2:
+                pm.create_particle(
+                    
+                    (player_car.rect.center),
+                    (player_car.velocity[0]/-.8, player_car.velocity[1]/-.8),
+                    8 * cam.zoom,
+                    0.2,
+                    (85,85,85),
+                    custom_death_meter=uniform(2,3))
+
+        if pygame.key.get_pressed()[K_SPACE] and player_car.starting:
+            if randint(1,3) == 2:
+                pm.create_particle(
+                    
+                    (player_car.rect.center),
+                    (3,round(uniform(0.5,-0.5), 1)),
+                    8 * cam.zoom,
+                    0.2,
+                    (85,85,85),
+                    custom_death_meter=uniform(2,3))
 
         # particles for boost
         if player_car.blue_fire:
-            pm.create_particle(
-            
-            (player_car.rect.center),
-            (0,0),
-            8 * cam.zoom,
-            0.2,
-            (255,25,25),
-            custom_death_meter=4)
+            if randint(1,3) == 2:
+                pm.create_particle(
+                    
+                    (player_car.rect.center),
+                    (player_car.velocity[0]/-.8, player_car.velocity[1]/-.8),
+                    8 * cam.zoom,
+                    0.2,
+                    (88,88,88),
+                    custom_death_meter=uniform(1,2))
 
         # boom particle for when player exceeds certain speed
         
@@ -376,8 +402,12 @@ def render():
         if has_car_icon:
             screen.blit(player_car.show_image, (910,780))
 
+        try:
+            best_round.update(screen, min(player_car.performances[level_m.levels[level_m.current_level].name]))
+        except KeyError:
+            best_round.update(screen, "_____")
+
         cam.follow(player_car)
-        
 
         if player_car.laps > laps:
             show_results(level_m.levels[level_m.current_level].name)
@@ -390,6 +420,7 @@ def render():
         screen.fill((255,255,255))
         level_m.update_select_buttons(screen)
         ui.write(screen, "Select Level:", (360,150), font = bigger)
+        ui.write(screen, "*too broke for more levels", (360,850), font = small)
 
     # code for "select_car" or "buy_car" stage
     if stage == "select_car": 
@@ -457,7 +488,7 @@ while run:
     for event in pygame.event.get():
         # closes the game if the "X" is pressed. Provides a short summary of what happened in the game aswell as saves data that has to be saved
 
-        if event.type == QUIT:
+        if event.type == pygame.QUIT:
             run = False
             currency_save.save("money", round(money))
 
@@ -528,5 +559,8 @@ while run:
                         #print()
                     except NameError:
                         print("quick play")
+            if event.key == K_ESCAPE:
+                go_home()
+    
 
     pygame.display.update()

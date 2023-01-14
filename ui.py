@@ -97,14 +97,20 @@ class ButtonWithArg:
         screen.blit(self.text, (self.text_rect.x, self.text_rect.y))
 
 class TextWithBackground:
-    def __init__(self, image_size, pos, image, fontsize=30, colour=(255, 255, 255)):
+    def __init__(self, image_size, pos, image, fontsize=30, colour=(255, 255, 255), font=None, extra_x=0, extra_y=0):
+
         self.image = pygame.transform.scale(image, image_size)
         self.rect = self.image.get_rect(center=pos)
-        self.font = pygame.font.SysFont("Arial", fontsize, False, False)
+        if font == None:
+            self.font = pygame.font.SysFont("Arial", fontsize, False, False)
+        else:
+            self.font = pygame.font.Font(F"FONTS/{font}", fontsize)
         self.color = colour
         self.text = self.font.render("", 1, self.color)
         self.other_text = None
         self.other_rect = None
+        self.ex_x = extra_x
+        self.ex_y = extra_y
 
     def update(self, screen, variable, othertext=""):
         self.text = self.font.render(f"{variable}", 1, self.color)
@@ -112,10 +118,10 @@ class TextWithBackground:
 
         if othertext:
             self.other_text = self.font.render(f"{othertext}", 1, self.color)
-            self.other_rect = self.other_text.get_rect(topleft=(self.rect.center[0] - 5, self.rect.center[1] - 5))
+            self.other_rect = self.other_text.get_rect(topleft=(self.rect.center[0] - 10, self.rect.center[1] - 5))
 
         screen.blit(self.image, (self.rect.x, self.rect.y))
-        screen.blit(self.text, (self.rect.x, self.rect.y))
+        screen.blit(self.text, (self.rect.x + self.ex_x, self.rect.y + self.ex_y))
         if self.other_text:
             screen.blit(self.other_text, (self.other_rect.x, self.other_rect.y))
 

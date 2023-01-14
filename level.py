@@ -35,6 +35,8 @@ class Level:
         self.went_left = False
         self.went_right = False
 
+        self.touching = False
+
     def update(self, screen):
         time_now = pygame.time.get_ticks()
 
@@ -42,7 +44,7 @@ class Level:
             
         )
 
-        self.circle2 = pygame.Rect(470-self.cam.scroll[0], 1020-self.cam.scroll[1],150*1.3,150*1.3)
+        self.circle2 = pygame.Rect(440-self.cam.scroll[0], 920-self.cam.scroll[1],150*1.3,150*1.3)
 
         self.circle3 = pygame.Rect(-self.cam.scroll[0], 0-self.cam.scroll[1],150*1.3,1000*1.3)
 
@@ -61,10 +63,15 @@ class Level:
 
         #screen.blit(overlap.to_surface(unsetcolor=(0,0,0,0), setcolor=(255,255,255,255)), (self.x, self.y))
 
-        if overlap.count() < 180 or not self.started or not self.time < 1:
+        if overlap.count() < 180:
             self.car.out = True
         else:
             self.car.out = False
+
+        if not self.started:
+            self.car.starting = True
+        else:
+            self.car.starting = False
 
         if self.time > -1:
             if self.time == 0:
@@ -79,36 +86,8 @@ class Level:
                     self.started = True
                     self.car.starting = False
 
-        if self.circle2.collidepoint(self.car.rect.center):
-            if not self.went_bottom:
-                self.start_time = time.time()
-            else:
-                if self.went_above:
-                    self.end_time = time.time()
-                    self.went_bottom_again = True
-            self.went_bottom = True
-            
-
-        if self.circle.collidepoint(self.car.rect.center) :
-            self.went_above = True
-
-        if self.circle3.collidepoint(self.car.rect.center) :
-            self.went_left= True
-        
-        if self.circle4.collidepoint(self.car.rect.center) :
-            self.went_right = True
-
-            
-        if self.went_bottom and self.went_above and self.went_left and self.went_right and self.went_bottom_again:
-            self.car.laps += 1
-            self.end_time = time.time()
-            self.went_bottom = False
-            self.went_above = False
-            self.went_left = False
-            self.went_right = False
-            self.went_bottom_again
-            print(f"Finished {self.car.laps} in {round(self.end_time - self.start_time,3)}")
-            self.car.add_lap(self.name, f"{round(self.end_time - self.start_time,3)}", self.car.laps)
+        self.check_level_complete()
+        # self.draw_circles(screen)
 
     def get_car_mask(self):
         carimg = self.car.image.convert()
@@ -141,4 +120,43 @@ class Level:
             screen, (255,126,12),
             self.circle4
         )
+    
+    def check_level_complete(self):
+
+        if self.circle2.collidepoint(self.car.rect.center): # --> START POINT 
+
+            self.touching = True
+            if not self.went_bottom and self.started:
+                self.went_bottom = True
+                self.start_time = time.time()
+                print("bottom 1")
+            if not self.went_bottom_again and self.went_above:
+                self.went_bottom_again = True
+                self.end_time = time.time()
+                print("bottom 2")
+        else:
+            self.touching = False
+
+        if self.circle.collidepoint(self.car.rect.center) : # --> ABOVE POINT 
+            self.went_above = True
+            print("up")
+
+        if self.circle3.collidepoint(self.car.rect.center) : # --> LEFT POINT 
+            self.went_left= True
+            print("left")
         
+        if self.circle4.collidepoint(self.car.rect.center) : # --> RIGHT POINT 
+            self.went_right = True
+            print("right")
+
+            
+        if self.went_bottom and self.went_above and self.went_left and self.went_right and self.went_bottom_again:
+            self.car.laps += 1
+            #self.end_time = time.time()
+            self.went_bottom = False
+            self.went_above = False
+            self.went_left = False
+            self.went_right = False
+            self.went_bottom_again = False
+            print(f"Finished {self.car.laps} in {round(self.end_time - self.start_time,3)}")
+            self.car.add_lap(self.name, f"{round(self.end_time - self.start_time,3)}", self.car.laps)

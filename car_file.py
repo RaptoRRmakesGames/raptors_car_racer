@@ -1,7 +1,7 @@
 import pygame
 from pygame.locals import *
 from random import choice, randint 
-import math, camera, ui
+import math, camera, ui, level
 
 class CarSprite( pygame.sprite.Sprite ):
     def __init__( self, car_image, x, y, max_speed, accel,rot_speed=[1.8, 2.2, 3],top_speed=0,price=0,name="" ,rotations=360, camera="" ):
@@ -55,7 +55,7 @@ class CarSprite( pygame.sprite.Sprite ):
         self.rect        = self.image.get_rect()
         self.rect.center = ( x, y )
 
-        self.speedometer = speedometer = ui.TextWithBackground((100,50), (60,950),  pygame.transform.scale(pygame.image.load("images/road_texture.png"), (200, 75)).convert(),)
+        self.speedometer = speedometer = ui.TextWithBackground((100,50), (60,950),  pygame.transform.scale(pygame.image.load("images/kmh.png"), (500, 250)).convert(),extra_x=8,extra_y=5, font="JdLcdRoundedRegular-vXwE.ttf", colour=(255,145,0))
 
         self.turn()
 
@@ -70,6 +70,8 @@ class CarSprite( pygame.sprite.Sprite ):
         self.image_index = 180
         self.image       = self.rotated_images[self.image_index]
         self.starting = True
+        self.performances = {}
+        self.laps = 0
         print(f"{self.name} reset")
 
     def turn( self, ori=1 ):
@@ -87,6 +89,7 @@ class CarSprite( pygame.sprite.Sprite ):
                 self.rect.center = (x,y)
 
     def accelerate( self):
+
         self.speed += self.accel
 
     def brake( self ):
